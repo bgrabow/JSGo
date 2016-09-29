@@ -23,15 +23,16 @@
     window.onload = () => {
       buildCellDivs();
       
-      var game = {};
-      //var game = new GoGame(render);
+      var game = new GoGame({
+        notify: (state) => render(state)
+      });
 
       var cellDivs = document.querySelectorAll('.cell');
       Array.prototype.forEach.call(cellDivs,  cellDiv => {
         cellDiv.addEventListener('click', () => {
-          notifyGameOfClick(cellDiv.dataset.row, cellDiv.dataset.col, game);
+          notifyGameOfClick(cellDiv.dataset.col, cellDiv.dataset.row, game);
         });
-      })
+      });
     }
 
     const CELL_WIDTH = 36;
@@ -39,29 +40,29 @@
     const BOARD_SIZE = 19;
 
     function render(state) {
-
+      
     }
 
-    function notifyGameOfClick(row, col, game) {
-      alert(`Click at ${col},${row}`);
-      //game.currentPlayerSelects(row, col);
+    function notifyGameOfClick(col, row, game) {
+      //alert(`Click at ${col},${row}`);
+      game.currentPlayerSelects(col, row);
     }
 
     function buildCellDivs() {
       var game = document.getElementById("game");
       for (var row=0; row < BOARD_SIZE; row++) {
         for (var col=0; col < BOARD_SIZE; col++) {
-          game.appendChild(createCellAt(row, col));
+          game.appendChild(createCellAt(col, row));
         }
       }
     }
 
-    function createCellAt(row, col) {
+    function createCellAt(col, row) {
       var cell = document.createElement('div')
       cell.className = 'cell';
-      cell.id = cellId(row, col);
-      cell.dataset.row = row;
+      cell.id = cellId(col, row);
       cell.dataset.col = col;
+      cell.dataset.row = row;
       cell.style.left = CELL_WIDTH * col + 'px';
       cell.style.top = CELL_HEIGHT * row + 'px';
       cell.style.width = CELL_WIDTH + 'px';
@@ -69,8 +70,8 @@
       return cell;
     }
 
-    function cellId(row, col) {
-      return `cell-#{row}-#{col}`;
+    function cellId(col, row) {
+      return `cell-#{col}-#{row}`;
     }
   </script>
 </body>

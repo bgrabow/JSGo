@@ -1,70 +1,46 @@
-const BLACK = 'black';
-const WHITE = 'white';
-const EMPTY = 'empty';
+var Stone = {
+    empty: 'empty',
+    black: 'black',
+    white: 'white',
+}
+
+class GoGame {
+    constructor(observer) {
+        this.observer = observer;
+        this.state = new State();
+    }
+
+    currentPlayerSelects(col, row) {
+        if(this.state.stoneAt(col, row) === Stone.empty) {
+            var newStone = this.state.currentPlayerColor;
+            this.state = this.state.add(newStone, col, row);
+            this.observer.notify(this.state.getValue());
+        }
+    }
+}
 
 class State {
-    constructor(cellDivs, currentPlayer = BLACK) {
-        var cells = parse(cellDivs);
-        this.cellAt = (col, row) => cells[col][row];
-        this.currentPlayer = currentPlayer;
+    constructor(inCells = new Map()) {
+        var cells = inCells;
+        this.currentPlayerColor = Stone.black;
 
-        function parse(cellDivs) {
-            var cells = [];
-            while(cells.push([]) < 19);
-            
-            Array.prototype.forEach.call(cellDivs, cellDiv => {
-                cells[cellDiv.dataset.col][cellDiv.dataset.row] = new Cell(cellDiv);
-            })
-            return cells;
-        }
-    }
-
-    cellForDiv(cellDiv) {
-        return this.cellAt(cellDiv.dataset.col, cellDiv.dataset.row);
-    }
-}
-
-class Cell {
-    constructor(cellDiv, contents=EMPTY) {
-        this.col = cellDiv.dataset.col;
-        this.row = cellDiv.dataset.row;
-        this.contents = contents;
-    }
-
-    click(event) {
-        var self = this
-        if(self.contents === EMPTY) {
-            addBlackStone();
+        this.stoneAt = (col, row) => {
+            return cells.has([col, row]) ?
+                   cells.get([col, row]) :
+                   Stone.empty;
         }
 
-        function addBlackStone() {
-            self.contents = BLACK;
-            var stone = new Stone(BLACK);
-            stone.addTo(event.target);
+        this.add = (stone, col, row) => {
+            var newCells = new Map(cells);
+            newCells.set([col, row], stone);
+            return new State(newCells);
+        }
+
+        this.getValue = () => {
+            return {
+                currentPlayerColor: this.currentPlayerColor,
+                cells: new Map(cells),
+            }
         }
     }
 }
-
-class Stone {
-    constructor(color=EMPTY) {
-        this.color = color;
-    }
-
-    toDiv() {
-        var div = document.createElement('div');
-        div.className = `${this.color} stone`;
-        return div;
-    }
-
-    addTo(targetDiv) {
-        targetDiv.appendChild(this.toDiv());
-    }
-}
-
-/*
-User clicks cell
-Notifies the Cell object of click
-Cell adds piece to itself
-
-
-*/
