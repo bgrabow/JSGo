@@ -1,5 +1,32 @@
-.board {
-    background-color: #222;
-    width: 500px;
-    height: 500px;
+.grid {
+    padding: 18px;
+    display: inline-block;
+    width: 650px;
+    height: 650px;
+}
+
+#game {
+    background-color: burlywood;
+    position: absolute;
+}
+
+.black {
+    background-image: linear-gradient(to bottom left, #7d7e7d, #0e0e0e);
+}
+
+.white {
+    background-image: linear-gradient(to bottom left, #FFFFFF, #CCCCCC);
+}
+
+.stone {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    border-radius: 16px;
+    margin: 1px;
+}
+
+.cell {
+    box-sizing: border-box;
+    position: absolute;
 }
