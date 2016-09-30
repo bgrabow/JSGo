@@ -28,7 +28,7 @@
       });
 
       var cellDivs = document.querySelectorAll('.cell');
-      Array.prototype.forEach.call(cellDivs,  cellDiv => {
+      forEachNodeIn(cellDivs,  cellDiv => {
         cellDiv.addEventListener('click', () => {
           notifyGameOfClick(cellDiv.dataset.col, cellDiv.dataset.row, game);
         });
@@ -40,8 +40,34 @@
     const BOARD_SIZE = 19;
 
     function render(state) {
-      
+      forEachNodeIn(document.querySelectorAll('.cell'), cellDiv => {
+        var col = cellDiv.dataset.col;
+        var row = cellDiv.dataset.row;
+        var newColor = state.cells.get(col, row) || Stone.empty;
+        setColor(cellDiv, newColor);
+      });
     }
+
+    function setColor(cellDiv, color) {
+      setEmpty(cellDiv);
+
+      if(color !== Stone.empty) {
+        var stone = document.createElement('div');
+        stone.className = `${color} stone`;
+        stone.dataset.color = color;
+        cellDiv.appendChild(stone);
+      }
+    }
+
+    function setEmpty(cellDiv) {
+      while(cellDiv.firstChild) {
+        cellDiv.removeChild(cellDiv.firstChild);
+      }
+    }
+
+    function forEachNodeIn(nodeList, callback) {
+      Array.prototype.forEach.call(nodeList, callback);
+    } 
 
     function notifyGameOfClick(col, row, game) {
       //alert(`Click at ${col},${row}`);
