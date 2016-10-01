@@ -1,3 +1,5 @@
+"use strict";
+
 var Stone = {
     empty: 'empty',
     black: 'black',
@@ -6,7 +8,7 @@ var Stone = {
 
 class GoGame {
     constructor(observer) {
-        this.observer = observer;
+        this.observer = observer || {notify: ()=>{}};
         this.state = new State();
     }
 
@@ -14,24 +16,24 @@ class GoGame {
         if(this.state.stoneAt(col, row) === Stone.empty) {
             var newStone = this.state.currentPlayerColor;
             this.state = this.state.add(newStone, col, row);
-            this.observer.notify(this.state.getValue());
         }
+        this.observer.notify(this.state.getValue());
     }
 }
 
 class State {
-    constructor(inCells = new StoneMap()) {
-        var cells = inCells;
+    constructor(inCells) {
+        this.cells = inCells || new StoneMap();
         this.currentPlayerColor = Stone.black;
 
         this.stoneAt = (col, row) => {
-            return cells.has(col, row) ?
-                   cells.get(col, row) :
+            return this.cells.has(col, row) ?
+                   this.cells.get(col, row) :
                    Stone.empty;
         }
 
         this.add = (stone, col, row) => {
-            var newCells = new StoneMap(cells);
+            var newCells = new StoneMap(this.cells);
             newCells.set(col, row, stone);
             return new State(newCells);
         }
@@ -39,7 +41,7 @@ class State {
         this.getValue = () => {
             return {
                 currentPlayerColor: this.currentPlayerColor,
-                cells: new StoneMap(cells),
+                cells: new StoneMap(this.cells),
             }
         }
     }
@@ -48,6 +50,10 @@ class State {
 class StoneMap {
     constructor(stoneMap) {
         this.map = stoneMap ? new Map(stoneMap.map) : new Map();
+    }
+
+    size() {
+        return this.map.size;
     }
 
     has(col, row) {

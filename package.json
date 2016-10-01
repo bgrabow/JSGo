@@ -1,0 +1,27 @@
+{
+  "name": "jsgo",
+  "version": "0.1.0",
+  "description": "The game of Go in your browser!",
+  "main": "index.js",
+  "scripts": {
+    "test": "jasmine-node test/mySpec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bgrabow/JSGo.git"
+  },
+  "keywords": [
+    "Go",
+    "board",
+    "game"
+  ],
+  "author": "Ben Grabow",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bgrabow/JSGo/issues"
+  },
+  "homepage": "https://github.com/bgrabow/JSGo#readme",
+  "devDependencies": {
+    "jasmine-core": "*"
+  }
+}
