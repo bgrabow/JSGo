@@ -6,6 +6,11 @@ var Stone = {
     white: 'white',
 }
 
+var Player = {
+    black: Stone.black,
+    white: Stone.white,
+}
+
 class GoGame {
     constructor(observer) {
         this.observer = observer || {notify: ()=>{}};
@@ -14,17 +19,18 @@ class GoGame {
 
     currentPlayerSelects(col, row) {
         if(this.state.stoneAt(col, row) === Stone.empty) {
-            var newStone = this.state.currentPlayerColor;
-            this.state = this.state.add(newStone, col, row);
+            this.state = this.state.addStone(col, row).nextPlayer();
         }
         this.observer.notify(this.state.getValue());
     }
+
+    currentPlayer() { return this.state.currentPlayer }
 }
 
 class State {
-    constructor(inCells) {
+    constructor(inCells, player) {
         this.cells = inCells || new StoneMap();
-        this.currentPlayerColor = Stone.black;
+        this.currentPlayer = player || Player.black;
 
         this.stoneAt = (col, row) => {
             return this.cells.has(col, row) ?
@@ -32,17 +38,22 @@ class State {
                    Stone.empty;
         }
 
-        this.add = (stone, col, row) => {
+        this.addStone = (col, row) => {
             var newCells = new StoneMap(this.cells);
-            newCells.set(col, row, stone);
-            return new State(newCells);
+            newCells.set(col, row, this.currentPlayer);
+            return new State(newCells, this.currentPlayer);
         }
 
         this.getValue = () => {
             return {
-                currentPlayerColor: this.currentPlayerColor,
-                cells: new StoneMap(this.cells),
+                currentPlayer: this.currentPlayer,
+                cells: new StoneMap(this.cells, this.currentPlayer),
             }
+        }
+
+        this.nextPlayer = () => {
+            let nextPlayer = this.currentPlayer == Player.black ? Player.white : Player.black;
+            return new State(this.cells, nextPlayer);
         }
     }
 }
