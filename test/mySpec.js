@@ -5,35 +5,35 @@ describe("A suite", () => {
 })
 
 describe("The game of Go", () => {
-    describe("The board", () => {
-        it("can have at most one stone per cell", () => {
-            var game = new GoGame();
-            game.currentPlayerSelects(0, 0);
-            game.currentPlayerSelects(0, 0);
-            expect(game.state.cells.size()).toBe(1);
-        })
-    })
-
-    describe("Current player", () => {
+    describe("Playing a stone", () => {
         var game;
+        const [SOME_COL, SOME_ROW] = [0, 0];
+        const [OTHER_COL, OTHER_ROW] = [1, 1];
 
         beforeEach(() => {
             game = new GoGame();
         })
 
-        it("starts with black's turn", () => {
-            expect(game.currentPlayer()).toBe(Player.black);
+        it("adds a stone to the board", ()=>{
+            game.currentPlayerSelects(SOME_COL, SOME_ROW);
+            expect(game.state.stoneAt(SOME_COL, SOME_ROW)).toBe(Stone.black);
         })
 
-        it("alternates after each stone is played", () => {
-            let [someCol, someRow] = [0, 0];
-            let [otherCol, otherRow] = [1, 1];
+        it("can't be done on an occupied cell", ()=>{
+            game.currentPlayerSelects(SOME_COL, SOME_ROW);
+            let stonesAfterFirstPlay = game.state.cells.size();
+            game.currentPlayerSelects(SOME_COL, SOME_ROW);
+            expect(game.state.cells.size()).toBe(stonesAfterFirstPlay);
+        })
 
-            game.currentPlayerSelects(someCol, someRow);
-            expect(game.currentPlayer()).toBe(Player.white);
+        it("changes the current player", ()=>{
+            let firstPlayer = game.currentPlayer();
 
-            game.currentPlayerSelects(otherCol, otherRow);
-            expect(game.currentPlayer()).toBe(Player.black);
+            game.currentPlayerSelects(SOME_COL, SOME_ROW);
+            expect(game.currentPlayer() != firstPlayer).toBe(true);
+
+            game.currentPlayerSelects(OTHER_COL, OTHER_ROW);
+            expect(game.currentPlayer()).toBe(firstPlayer);
         })
     })
 })
