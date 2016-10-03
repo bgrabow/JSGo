@@ -21,10 +21,19 @@ class GoGame {
         if(this.state.stoneAt(col, row) === Stone.empty) {
             this.state = this.state.addStone(col, row).nextPlayer();
         }
-        this.observer.notify(this.state.getValue());
+        this.notify();
+    }
+
+    currentPlayerPasses() {
+        this.state = this.state.nextPlayer();
+        this.notify();
     }
 
     currentPlayer() { return this.state.currentPlayer }
+
+    notify() {
+        this.observer.notify(this.state.getValue());
+    }
 }
 
 class State {
@@ -51,32 +60,48 @@ class State {
             }
         }
 
+        this.toJSON = () => {
+            return JSON.stringify({
+                currentPlayer: this.currentPlayer,
+                cells: JSON.parse(this.cells.toJSON()),
+            })
+        }
+
         this.nextPlayer = () => {
             let nextPlayer = this.currentPlayer == Player.black ? Player.white : Player.black;
-            return new State(this.cells, nextPlayer);
+            let newState = new State(this.cells, nextPlayer);
+            return newState;
         }
     }
 }
 
 class StoneMap {
     constructor(stoneMap) {
-        this.map = stoneMap ? new Map(stoneMap.map) : new Map();
+        this.map = stoneMap ? clone(stoneMap.map) : {};
+
+        function clone(map) {
+            return JSON.parse(JSON.stringify(map));
+        }
     }
 
     size() {
-        return this.map.size;
+        return Object.keys(this.map).length;
     }
 
     has(col, row) {
-        return this.map.has(this.key(col, row));
+        return this.map.hasOwnProperty(this.key(col, row));
     }
 
     get(col, row) {
-        return this.map.get(this.key(col, row));
+        return this.map[this.key(col, row)];
     }
 
     set(col, row, value) {
-        return this.map.set(this.key(col, row), value);
+        return this.map[this.key(col, row)] = value;
+    }
+
+    toJSON() {
+        return JSON.stringify(this.map);
     }
 
     key(col, row) {
