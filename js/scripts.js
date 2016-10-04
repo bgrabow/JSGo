@@ -40,8 +40,6 @@ class GoGame {
         this.notify();
     }
 
-    currentPlayer() { return this.state.currentPlayer }
-
     notify(observer) {
         let stateJSON = this.state.toJSON();
         let recipients = observer ? [observer] : this.observers;

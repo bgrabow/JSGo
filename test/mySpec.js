@@ -23,22 +23,22 @@ describe("The game of Go", () => {
             })
 
             it("changes the current player", ()=>{
-                let firstPlayer = game.currentPlayer();
+                let firstPlayer = game.state.currentPlayer;
 
                 game.currentPlayerSelects(SOME_COL, SOME_ROW);
-                expect(game.currentPlayer() != firstPlayer).toBe(true);
+                expect(game.state.currentPlayer != firstPlayer).toBe(true);
 
                 game.currentPlayerSelects(OTHER_COL, OTHER_ROW);
-                expect(game.currentPlayer()).toBe(firstPlayer);
+                expect(game.state.currentPlayer).toBe(firstPlayer);
             })
         })
     })
 
     describe("Passing", ()=>{
         it("changes the current player", ()=>{
-            let firstPlayer = game.currentPlayer();
+            let firstPlayer = game.state.currentPlayer;
             game.currentPlayerPasses();
-            expect(game.currentPlayer() != firstPlayer).toBe(true);
+            expect(game.state.currentPlayer != firstPlayer).toBe(true);
         })
 
         it("doesn't change the contents of the board", ()=>{
