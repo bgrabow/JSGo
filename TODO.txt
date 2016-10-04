@@ -1,4 +1,3 @@
-*   Initialize a GoGame object from JSON state string
 *   Separate State class into StableState and PendingState
     *   StableState is constrained to be a valid game state awaiting the next player's input
     *   PendingState may be an invalid game state, awaiting interaction from the game engine or rule evaluation
@@ -13,4 +12,3 @@
         *   Allow placing stone with no liberties if it will cause a capture that results in the stone having liberties
         *   Disallow recreation of previous state by rule of Ko
     *   Scoring
-*   Create separate assertions for each part of the JSON response so I don't have to keep modifying tests when I add new state properties
