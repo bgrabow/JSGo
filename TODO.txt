@@ -10,6 +10,3 @@
         *   Allow placing stone with no liberties if it will cause a capture that results in the stone having liberties
         *   Disallow recreation of previous state by rule of Ko
     *   Scoring
-*   Create UI
-    *   Current player display
-    *   Pass button
