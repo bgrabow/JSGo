@@ -30,3 +30,7 @@
     box-sizing: border-box;
     position: absolute;
 }
+
+#current-player-value {
+    position: absolute;
+}

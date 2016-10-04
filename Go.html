@@ -16,7 +16,16 @@
 </head>
 <body>
   <div id="game">
-    <img class="grid" src="./grid_648.png"/>
+    <div id="game-board">
+      <img class="grid" src="./grid_648.png"/>
+    </div>
+    <div id="game-status">
+      <div id="current-player">
+        <span>Current player: </span>
+        <span id="current-player-value"></span>  
+      </div>
+      <button id="pass-button" class="button">Pass</button> 
+    </div>
   </div>
   <script src="./js/scripts.js"></script>
   <script>
@@ -33,6 +42,9 @@
           notifyGameOfClick(cellDiv.dataset.col, cellDiv.dataset.row, game);
         });
       });
+      document.getElementById("pass-button").addEventListener('click', ()=>{
+        notifyGameOfPass(game);
+      })
     }
 
     const CELL_WIDTH = 36;
@@ -40,28 +52,41 @@
     const BOARD_SIZE = 19;
 
     function render(state) {
+      renderGameBoard(state);
+      renderGameStatus(state);
+    }
+
+    function renderGameBoard(state) {
       forEachNodeIn(document.querySelectorAll('.cell'), cellDiv => {
         var col = cellDiv.dataset.col;
         var row = cellDiv.dataset.row;
         var newColor = state.cells.get(col, row) || Stone.empty;
         setColor(cellDiv, newColor);
       });
+    } 
+
+    function renderGameStatus(state) {
+      showCurrentPlayer(state.currentPlayer);
     }
 
-    function setColor(cellDiv, color) {
-      setEmpty(cellDiv);
+    function showCurrentPlayer(currentPlayer) {
+      setColor(document.getElementById("current-player-value"), currentPlayer);
+    }
+
+    function setColor(container, color) {
+      setEmpty(container);
 
       if(color !== Stone.empty) {
         var stone = document.createElement('div');
         stone.className = `${color} stone`;
         stone.dataset.color = color;
-        cellDiv.appendChild(stone);
+        container.appendChild(stone);
       }
     }
 
-    function setEmpty(cellDiv) {
-      while(cellDiv.firstChild) {
-        cellDiv.removeChild(cellDiv.firstChild);
+    function setEmpty(container) {
+      while(container.firstChild) {
+        container.removeChild(container.firstChild);
       }
     }
 
@@ -70,12 +95,15 @@
     } 
 
     function notifyGameOfClick(col, row, game) {
-      //alert(`Click at ${col},${row}`);
       game.currentPlayerSelects(col, row);
     }
 
+    function notifyGameOfPass(game) {
+      game.currentPlayerPasses();
+    }
+
     function buildCellDivs() {
-      var game = document.getElementById("game");
+      var game = document.getElementById("game-board");
       for (var row=0; row < BOARD_SIZE; row++) {
         for (var col=0; col < BOARD_SIZE; col++) {
           game.appendChild(createCellAt(col, row));

@@ -1,6 +1,7 @@
 *   Initialize a GoGame object from JSON state string
 *   Update client (Go.html) to parse JSON state string instead of taking a live JS object
 *   Implement Go rules
+    *   End game after both players pass
     *   Capture stones with no liberties
         *   Capture a single stone
         *   Capture a group of stones

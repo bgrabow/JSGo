@@ -15,6 +15,7 @@ class GoGame {
     constructor(observer) {
         this.observer = observer || {notify: ()=>{}};
         this.state = new State();
+        this.notify();
     }
 
     currentPlayerSelects(col, row) {
