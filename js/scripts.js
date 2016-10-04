@@ -12,10 +12,15 @@ var Player = {
 }
 
 class GoGame {
-    constructor(observer) {
-        this.observer = observer || {notify: ()=>{}};
+    constructor() {
+        this.observers = [];
         this.state = new State();
         this.notify();
+    }
+
+    subscribe(observer) {
+        this.observers.push(observer);
+        this.notify(observer);
     }
 
     currentPlayerSelects(col, row) {
@@ -38,8 +43,12 @@ class GoGame {
 
     currentPlayer() { return this.state.currentPlayer }
 
-    notify() {
-        this.observer.notify(this.state.toJSON());
+    notify(observer) {
+        let stateJSON = this.state.toJSON();
+        let recipients = observer ? [observer] : this.observers;
+        recipients.forEach(observer => {
+            observer.notify(stateJSON);
+        })
     }
 }
 
