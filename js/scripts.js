@@ -12,10 +12,9 @@ var Player = {
 }
 
 class GoGame {
-    constructor() {
+    constructor(stateJSON) {
         this.observers = [];
-        this.state = new State();
-        this.notify();
+        this.state = stateJSON ? State.parse(stateJSON) : new State();
     }
 
     subscribe(observer) {
@@ -94,9 +93,18 @@ class State {
             return JSON.stringify({
                 currentPlayer: this.currentPlayer,
                 cells: JSON.parse(this.cells.toJSON()),
+                consecutivePasses: this.consecutivePasses,
                 gameOver: this.gameOver,
             })
         }
+    }
+
+    static parse(stateJSON) {
+        let state = JSON.parse(stateJSON);
+        return new State(new StoneMap(state.cells),
+                        state.currentPlayer,
+                        state.consecutivePasses,
+                        state.gameOver);
     }
 }
 

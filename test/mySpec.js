@@ -1,9 +1,3 @@
-describe("A suite", () => {
-    it("contains spec with an expectation", () => {
-        expect(true).toBe(true);
-    })
-})
-
 describe("The game of Go", () => {
     var game;
 
@@ -48,18 +42,33 @@ describe("The game of Go", () => {
         })
 
         it("doesn't change the contents of the board", ()=>{
+            let anyNonEndedGame = {
+                currentPlayer: 'black',
+                cells: {
+                    '8,1': 'black',
+                    '13,13': 'white',
+                }
+            }
+            let game = new GoGame(JSON.stringify(anyNonEndedGame));
             game.currentPlayerPasses();
-            expect(JSON.parse(game.state.toJSON())).toEqual({
-                currentPlayer: 'white',
-                cells: {},
-                gameOver: false,
-            })
+            expect(JSON.parse(game.state.toJSON())).toEqual(jasmine.objectContaining({
+                cells: anyNonEndedGame.cells,
+            }));
         })
 
         it("ends the game if both players pass in a row", ()=>{
             game.currentPlayerPasses();
+            expect(game.state.gameOver).toBe(false);
             game.currentPlayerPasses();
             expect(game.state.gameOver).toBe(true)
+        })
+
+        it('remembers that a player passed after exporting then loading a game', ()=>{
+            game.currentPlayerPasses();
+            let savedGame = game.state.toJSON();
+            let loadedGame = new GoGame(savedGame);
+            loadedGame.currentPlayerPasses();
+            expect(loadedGame.state.gameOver).toBe(true);
         })
     })
 
@@ -73,8 +82,30 @@ describe("The game of Go", () => {
                     '1,2': 'black',
                     '2,2': 'white',
                 },
+                consecutivePasses: 0,
                 gameOver: false,
             });
+        })
+
+        it('can be used to initialize a game', ()=>{
+            let state = {
+                currentPlayer: 'white',
+                cells: {
+                    '3,7': 'white',
+                    '8,12': 'black',
+                },
+            }
+            let game = new GoGame(JSON.stringify(state))
+
+            expect(game.state.stoneAt(3,7)).toBe('white');
+            expect(game.state.stoneAt(8,12)).toBe('black');
+            expect(JSON.parse(game.state.toJSON())).toEqual(jasmine.objectContaining({
+                currentPlayer: 'white',
+                cells: {
+                    '3,7': 'white',
+                    '8,12': 'black',
+                },
+            }))
         })
     })
 })
