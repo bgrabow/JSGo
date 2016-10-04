@@ -7,6 +7,7 @@ var Stone = {
 }
 
 var Player = {
+    empty: Stone.empty,
     black: Stone.black,
     white: Stone.white,
 }
@@ -78,7 +79,7 @@ class State {
         this.endGame = ()=>{
             if (this.gameOver) return this;
 
-            return new State(this.cells, this.currentPlayer, this.consecutivePasses, true);
+            return new State(this.cells, Player.empty, this.consecutivePasses, true);
         }
 
         this.stoneAt = (col, row) => {
