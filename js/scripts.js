@@ -26,21 +26,56 @@ class GoGame {
     }
 
     currentPlayerPasses() {
-        this.state = this.state.nextPlayer();
+        this.state = this.state.pass();
+        if(this.state.consecutivePasses >= 2) {
+            this.state = this.state.endGame();
+        } else {
+            this.state = this.state.nextPlayer();
+        }
+        
         this.notify();
     }
 
     currentPlayer() { return this.state.currentPlayer }
 
     notify() {
-        this.observer.notify(this.state.getValue());
+        this.observer.notify(this.state.toJSON());
     }
 }
 
 class State {
-    constructor(inCells, player) {
+    constructor(inCells, player, consecutivePasses, gameOver) {
         this.cells = inCells || new StoneMap();
         this.currentPlayer = player || Player.black;
+        this.consecutivePasses = consecutivePasses || 0;
+        this.gameOver = gameOver || false;
+
+        this.addStone = (col, row) => {
+            if (this.gameOver) return this;
+
+            var newCells = new StoneMap(this.cells);
+            newCells.set(col, row, this.currentPlayer);
+            return new State(newCells, this.currentPlayer, 0);
+        }
+
+        this.pass = () => {
+            if (this.gameOver) return this;
+
+            return new State(this.cells, this.currentPlayer, this.consecutivePasses + 1);
+        }
+
+        this.nextPlayer = () => {
+            if (this.gameOver) return this;
+
+            let nextPlayer = this.currentPlayer == Player.black ? Player.white : Player.black;
+            return new State(this.cells, nextPlayer, this.consecutivePasses);
+        }
+
+        this.endGame = ()=>{
+            if (this.gameOver) return this;
+
+            return new State(this.cells, this.currentPlayer, this.consecutivePasses, true);
+        }
 
         this.stoneAt = (col, row) => {
             return this.cells.has(col, row) ?
@@ -48,30 +83,12 @@ class State {
                    Stone.empty;
         }
 
-        this.addStone = (col, row) => {
-            var newCells = new StoneMap(this.cells);
-            newCells.set(col, row, this.currentPlayer);
-            return new State(newCells, this.currentPlayer);
-        }
-
-        this.getValue = () => {
-            return {
-                currentPlayer: this.currentPlayer,
-                cells: new StoneMap(this.cells, this.currentPlayer),
-            }
-        }
-
         this.toJSON = () => {
             return JSON.stringify({
                 currentPlayer: this.currentPlayer,
                 cells: JSON.parse(this.cells.toJSON()),
+                gameOver: this.gameOver,
             })
-        }
-
-        this.nextPlayer = () => {
-            let nextPlayer = this.currentPlayer == Player.black ? Player.white : Player.black;
-            let newState = new State(this.cells, nextPlayer);
-            return newState;
         }
     }
 }

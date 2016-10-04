@@ -52,7 +52,14 @@ describe("The game of Go", () => {
             expect(JSON.parse(game.state.toJSON())).toEqual({
                 currentPlayer: 'white',
                 cells: {},
+                gameOver: false,
             })
+        })
+
+        it("ends the game if both players pass in a row", ()=>{
+            game.currentPlayerPasses();
+            game.currentPlayerPasses();
+            expect(game.state.gameOver).toBe(true)
         })
     })
 
@@ -65,7 +72,8 @@ describe("The game of Go", () => {
                 cells: {
                     '1,2': 'black',
                     '2,2': 'white',
-                }
+                },
+                gameOver: false,
             });
         })
     })

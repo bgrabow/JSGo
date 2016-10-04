@@ -24,7 +24,8 @@
         <span>Current player: </span>
         <span id="current-player-value"></span>  
       </div>
-      <button id="pass-button" class="button">Pass</button> 
+      <button id="pass-button" class="button">Pass</button>
+      <div id="game-over"></div>
     </div>
   </div>
   <script src="./js/scripts.js"></script>
@@ -33,7 +34,7 @@
       buildCellDivs();
       
       var game = new GoGame({
-        notify: (state) => render(state)
+        notify: (stateJSON) => render(JSON.parse(stateJSON))
       });
 
       var cellDivs = document.querySelectorAll('.cell');
@@ -60,17 +61,27 @@
       forEachNodeIn(document.querySelectorAll('.cell'), cellDiv => {
         var col = cellDiv.dataset.col;
         var row = cellDiv.dataset.row;
-        var newColor = state.cells.get(col, row) || Stone.empty;
+        var newColor = state.cells[key(col, row)] || Stone.empty;
         setColor(cellDiv, newColor);
+
+        function key(col, row) {
+          return [col, row].toString();
+        }
       });
     } 
 
     function renderGameStatus(state) {
       showCurrentPlayer(state.currentPlayer);
+      showGameStatus(state.gameOver);
     }
 
     function showCurrentPlayer(currentPlayer) {
       setColor(document.getElementById("current-player-value"), currentPlayer);
+    }
+
+    function showGameStatus(gameOver) {
+      var text = gameOver ? "Game over!" : "";
+      document.getElementById('game-over').innerText = text;
     }
 
     function setColor(container, color) {

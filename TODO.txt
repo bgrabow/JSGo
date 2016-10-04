@@ -10,3 +10,4 @@
         *   Allow placing stone with no liberties if it will cause a capture that results in the stone having liberties
         *   Disallow recreation of previous state by rule of Ko
     *   Scoring
+*   Create separate assertions for each part of the JSON response so I don't have to keep modifying tests when I add new state properties
