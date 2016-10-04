@@ -1,4 +1,8 @@
 *   Initialize a GoGame object from JSON state string
+*   Separate State class into StableState and PendingState
+    *   StableState is constrained to be a valid game state awaiting the next player's input
+    *   PendingState may be an invalid game state, awaiting interaction from the game engine or rule evaluation
+    *   StableState may be converted to JSON, PendingState may not since it should never be shown to an observer
 *   Implement Go rules
     *   End game after both players pass
     *   Capture stones with no liberties
