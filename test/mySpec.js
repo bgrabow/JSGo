@@ -82,7 +82,7 @@ describe("The game of Go", () => {
 describe("StoneMap", ()=>{
     it("stores stones", ()=>{
         let stoneMap = new StoneMap();
-        stoneMap.set(0, 0, Stone.black);
+        stoneMap = stoneMap.set(0, 0, Stone.black);
         expect(stoneMap.has(0,0)).toBe(true);
         expect(stoneMap.get(0,0)).toBe(Stone.black);
         expect(stoneMap.size()).toBe(1);
@@ -97,9 +97,9 @@ describe("StoneMap", ()=>{
 
     it("can be converted to JSON", ()=>{
         let stoneMap = new StoneMap();
-        stoneMap.set(0, 0, Stone.black);
-        stoneMap.set(1, 2, Stone.white);
-        expect(stoneMap.toJSON()).toEqual(
+        expect(stoneMap.set(0, 0, Stone.black)
+                    .set(1, 2, Stone.white)
+                    .toJSON()).toEqual(
             '{"0,0":"black","1,2":"white"}'
         )
     })

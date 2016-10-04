@@ -53,9 +53,7 @@ class State {
         this.addStone = (col, row) => {
             if (this.gameOver) return this;
 
-            var newCells = new StoneMap(this.cells);
-            newCells.set(col, row, this.currentPlayer);
-            return new State(newCells, this.currentPlayer, 0);
+            return new State(this.cells.set(col, row, this.currentPlayer), this.currentPlayer, 0);
         }
 
         this.pass = () => {
@@ -95,11 +93,11 @@ class State {
 
 class StoneMap {
     constructor(stoneMap) {
-        this.map = stoneMap ? clone(stoneMap.map) : {};
+        this.map = stoneMap || {};
+    }
 
-        function clone(map) {
-            return JSON.parse(JSON.stringify(map));
-        }
+    clone(map) {
+        return JSON.parse(JSON.stringify(map));
     }
 
     size() {
@@ -115,7 +113,9 @@ class StoneMap {
     }
 
     set(col, row, value) {
-        return this.map[this.key(col, row)] = value;
+        let mapCopy = this.clone(this.map);
+        mapCopy[this.key(col, row)] = value;
+        return new StoneMap(mapCopy);
     }
 
     toJSON() {
