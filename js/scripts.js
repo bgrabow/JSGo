@@ -180,16 +180,18 @@ class GoRules {
     }
 
     static removeOnePlayersDeadStones(state, player) {
-        var newState = state;
-
+        var cellGroups = [];
         state.cells.eachCell((col, row, color) => {
-            if (color !== player) return;
-            if (GoRules.hasAdjacentLiberty(col, row, state)) return;
+            cellGroups.push(new CellGroup(col, row, color, state))
+        });
 
-            newState = newState.removeStone(col, row);
-        })
-
-        return newState;
+        return cellGroups.filter(g => { return g.color === player })
+                         .filter(g => { return g.isDead() })
+                         .reduce((removingGroups, g) => {
+                            return g.cells.reduce((removingStones, cell) => {
+                                 return removingStones.removeStone(cell.col, cell.row);
+                             }, removingGroups);
+                         }, state);
     }
 
     static hasAdjacentLiberty(col, row, state) {
@@ -207,5 +209,22 @@ class GoRules {
         function inBounds(col, row) {
             return col >= 0 && row >= 0 && col <= 19 && row <= 19;
         }
+    }
+}
+
+class CellGroup {
+    constructor(col, row, color, state) {
+        this.color = color;
+        this.cells = [{
+            col: col,
+            row: row,
+        }];
+        this.state = state;
+    }
+
+    isDead() {
+        return this.cells.every(cell => {
+            return !GoRules.hasAdjacentLiberty(cell.col, cell.row, this.state);
+        })
     }
 }
