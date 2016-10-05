@@ -60,7 +60,13 @@ class State {
         this.addStone = (col, row) => {
             if (this.gameOver) return this;
 
-            return new State(this.cells.set(col, row, this.currentPlayer), this.currentPlayer, 0);
+            return new State(this.cells.set(col, row, this.currentPlayer), this.currentPlayer);
+        }
+
+        this.removeStone = (col, row) => {
+            if (this.gameOver) return this;
+
+            return new State(this.cells.remove(col, row), this.currentPlayer)
         }
 
         this.pass = () => {
@@ -134,11 +140,31 @@ class StoneMap {
         return new StoneMap(mapCopy);
     }
 
+    remove(col, row) {
+        let mapCopy = this.clone(this.map);
+        delete mapCopy[this.key(col, row)];
+        return new StoneMap(mapCopy);
+    }
+
     toJSON() {
         return JSON.stringify(this.map);
     }
 
     key(col, row) {
         return [col, row].toString();
+    }
+}
+
+class GoRules {
+    static evaluate(action, state) {
+        // First check if new stone causes other side's stones to be captured
+        // Second check if new stone has any liberties after other side's stones are removed.
+        //      If not, abort action and return failure.
+        // Third check if new state is a replica of any state that came before it.
+        //      If it is, abort action and return failure.
+        //      This could get tricky...
+
+        let newState = state.addStone(2,3, Stone.black).removeStone(2,2).nextPlayer();
+        return newState;
     }
 }

@@ -12,3 +12,5 @@
         *   Allow placing stone with no liberties if it will cause a capture that results in the stone having liberties
         *   Disallow recreation of previous state by rule of Ko
     *   Scoring
+*   Add undo/redo/tree traversal of game history
+    *   Save state history as linked list

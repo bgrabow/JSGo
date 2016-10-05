@@ -110,6 +110,119 @@ describe("The game of Go", () => {
     })
 })
 
+describe('Rules of Go', ()=>{
+    describe('capturing a stone', ()=>{
+        it('a stone is captured when it has no liberties', ()=>{
+            let state = new State(parse([
+                "...................",
+                "..b................",
+                ".bwb...............",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+            ]), Player.black);
+            
+            expect(GoRules.evaluate({playAt: '2,3'}, state)).toEqual(jasmine.objectContaining({
+                currentPlayer: Player.white,
+                cells: parse([
+                    "...................",
+                    "..b................",
+                    ".b.b...............",
+                    "..b................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                ]),
+            }))
+        })
+    })
+})
+
+describe('string literal representation of board', ()=>{
+    let board = [
+        "...................",
+        "..b................",
+        ".bwb...............",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+        "...................",
+    ];
+    let stoneMap = new StoneMap().set(2,1, Stone.black)
+                                .set(1,2, Stone.black)
+                                .set(2,2, Stone.white)
+                                .set(3,2, Stone.black);
+
+    it('can be converted to a live StoneMap with parse', ()=>{
+        expect(parse(board)).toEqual(stoneMap);
+    })
+    it('can be extracted from a live StoneMap object with prettyPrint', ()=>{
+        expect(prettyPrint(stoneMap)).toEqual(board);
+    })
+})
+
+function parse(visualBoard) {
+    let cells = new StoneMap();
+    visualBoard.forEach((rowString, row) => {
+        rowString.split('').forEach((char, col) => {
+            if(['b','w'].includes(char)) {
+                cells = cells.set(col, row, char === 'b' ? Stone.black : Stone.white);
+            }
+        })
+    })
+    return cells;
+}
+
+function prettyPrint(cells) {
+    return [...Array(19).keys()].map(row => {
+        return [...Array(19).keys()].map(col => {
+            let value = cells.get(col, row);
+            return {
+                [Stone.black]: 'b',
+                [Stone.white]: 'w',
+                undefined: '.',
+            }[value]
+        }).join('');
+    })
+}
+
 describe("StoneMap", ()=>{
     it("stores stones", ()=>{
         let stoneMap = new StoneMap();
