@@ -17,9 +17,9 @@ describe("The game of Go", () => {
 
             it("can't be done on an occupied cell", ()=>{
                 game.currentPlayerSelects(SOME_COL, SOME_ROW);
-                let stonesAfterFirstPlay = game.state.cells.size();
+                let stonesAfterFirstPlay = game.state.cells;
                 game.currentPlayerSelects(SOME_COL, SOME_ROW);
-                expect(game.state.cells.size()).toBe(stonesAfterFirstPlay);
+                expect(game.state.cells).toEqual(stonesAfterFirstPlay);
             })
 
             it("changes the current player", ()=>{
@@ -135,7 +135,7 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.black);
             
-            expect(GoRules.evaluate({playAt: '2,3'}, state)).toEqual(jasmine.objectContaining({
+            expect(GoRules.evaluate({col: 2, row: 3}, state)).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.white,
                 cells: parse([
                     "...................",
@@ -184,13 +184,62 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.black);
             
-            expect(GoRules.evaluate({playAt: '2,3'}, state)).toEqual(jasmine.objectContaining({
+            expect(GoRules.evaluate({col: 2, row: 3}, state)).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.white,
                 cells: parse([
                     "...................",
                     "..b................",
                     ".b.b...............",
                     "..b................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                    "...................",
+                ]),
+            }))
+        })
+        
+        it('works for both players and in different positions', ()=>{
+            let state = new State(parse([
+                "...................",
+                ".......w...........",
+                "......wbw..........",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+            ]), Player.white);
+            
+            expect(GoRules.evaluate({col: 7, row: 3}, state)).toEqual(jasmine.objectContaining({
+                currentPlayer: Player.black,
+                cells: parse([
+                    "...................",
+                    ".......w...........",
+                    "......w.w..........",
+                    ".......w...........",
                     "...................",
                     "...................",
                     "...................",

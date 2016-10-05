@@ -24,9 +24,7 @@ class GoGame {
     }
 
     currentPlayerSelects(col, row) {
-        if(this.state.stoneAt(col, row) === Stone.empty) {
-            this.state = this.state.addStone(col, row).nextPlayer();
-        }
+        this.state = GoRules.evaluate({col: col, row: row}, this.state);
         this.notify();
     }
 
@@ -153,18 +151,57 @@ class StoneMap {
     key(col, row) {
         return [col, row].toString();
     }
+
+    eachCell(func) {
+        Object.getOwnPropertyNames(this.map).forEach(key => {
+            var [col,row] = key.split(',').map(s => parseInt(s));
+            func(col, row, this.get(col, row));
+        });
+    }
 }
 
 class GoRules {
     static evaluate(action, state) {
-        // First check if new stone causes other side's stones to be captured
+        if(state.stoneAt(action.col, action.row) !== Stone.empty) return state;
+
+        // First remove stones from other player if they have no liberties
         // Second check if new stone has any liberties after other side's stones are removed.
         //      If not, abort action and return failure.
         // Third check if new state is a replica of any state that came before it.
         //      If it is, abort action and return failure.
         //      This could get tricky...
+        let currentPlayer = state.currentPlayer;
+        let otherPlayer = state.nextPlayer().currentPlayer;
 
-        let newState = state.addStone(2,3, Stone.black).removeStone(2,2).nextPlayer();
+        let newState = state.addStone(action.col, action.row, currentPlayer);
+        let otherPlayersStonesRemoved = GoRules.removeOnePlayersDeadStones(newState, otherPlayer);
+
+        return otherPlayersStonesRemoved.nextPlayer();
+    }
+
+    static removeOnePlayersDeadStones(state, player) {
+        var newState = state;
+
+        state.cells.eachCell((col, row, color) => {
+            if (color !== player) return;
+            if (GoRules.hasAdjacentLiberty(col, row, state)) return;
+
+            newState = newState.removeStone(col, row);
+        })
+
         return newState;
+    }
+
+    static hasAdjacentLiberty(col, row, state) {
+        return GoRules.adjacentCells(col, row).some(([adjCol, adjRow]) => {
+            return state.stoneAt(adjCol, adjRow) === Stone.empty;
+        });
+    }
+
+    static adjacentCells(col, row) {
+        return [[col-1,row],
+        [col+1,row],
+        [col,row-1],
+        [col,row+1]]
     }
 }
