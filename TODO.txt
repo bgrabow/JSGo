@@ -7,6 +7,11 @@
     *   Capture stones with no liberties
 DONE    *   Capture a single stone
         *   Capture a group of stones
+            *   Transform board into groups:
+                *   Group of white stones adjacent to each other
+                *   Group of black stones adjacent to each other
+                *   Group of empty spaces adjacent to each other
+            *   Check for captures on groups instead of individual stones
     *   Detect illegal moves
         *   Placing a stone that will have no liberties
         *   Allow placing stone with no liberties if it will cause a capture that results in the stone having liberties
