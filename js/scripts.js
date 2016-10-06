@@ -180,13 +180,15 @@ class GoRules {
     }
 
     static removeOnePlayersDeadStones(state, player) {
-        var cellGroups = [];
+        var occupiedCells = [];
         state.cells.eachCell((col, row, color) => {
-            cellGroups.push(new CellGroup(col, row, color, state))
-        });
+            occupiedCells.push({col: col, row: row, color: color});
+        })
+
+        var cellGroups = new CellGrouper(occupiedCells).cellGroups;
 
         return cellGroups.filter(g => { return g.color === player })
-                         .filter(g => { return g.isDead() })
+                         .filter(g => { return !g.hasLiberties })
                          .reduce((removingGroups, g) => {
                             return g.cells.reduce((removingStones, cell) => {
                                  return removingStones.removeStone(cell.col, cell.row);
@@ -194,13 +196,13 @@ class GoRules {
                          }, state);
     }
 
-    static hasAdjacentLiberty(col, row, state) {
-        return GoRules.adjacentCells(col, row).some(([adjCol, adjRow]) => {
-            return state.stoneAt(adjCol, adjRow) === Stone.empty;
+    static hasAdjacentLiberty(col, row, cellIndex) {
+        return GoRules.adjacentPositions(col, row).some(([adjCol, adjRow]) => {
+            return !cellIndex[[adjCol, adjRow]];
         });
     }
 
-    static adjacentCells(col, row) {
+    static adjacentPositions(col, row) {
         return [[col-1,row],
         [col+1,row],
         [col,row-1],
@@ -212,19 +214,77 @@ class GoRules {
     }
 }
 
+class CellGrouper {
+    constructor(cells) {
+        var theCellGrouper = this;
+
+        this.cells = cells;
+        this.cellIndex = index(cells);
+        this.cellGroups = group();
+    
+        function group() {
+            var ungroupedCells = theCellGrouper.cells.slice();
+            var cellGroups = [];
+
+            while(ungroupedCells.length > 0) {
+                var newGroup;
+                [newGroup, ungroupedCells] = makeOneGroup(ungroupedCells.pop(), ungroupedCells)
+                cellGroups.push(newGroup);
+            }
+            return cellGroups;
+
+            function makeOneGroup(seedCell, groupingCandidates) {
+                var newGroup = new CellGroup(seedCell.color, theCellGrouper.cellIndex);
+                var groupInsertionQueue = [seedCell];
+                var ungroupedCellIndex = index(groupingCandidates);
+
+                while(groupInsertionQueue.length > 0) {
+                    var currentCell = groupInsertionQueue.shift();
+                    newGroup = newGroup.push(currentCell);
+                    
+                    var adjacentPositions = GoRules.adjacentPositions(currentCell.col, currentCell.row);
+                    var adjUngroupedCells = adjacentPositions.filter(([col, row]) => cellIsUngrouped(col, row, ungroupedCellIndex));
+                    var adjacentStones = adjUngroupedCells.map(([col, row]) => theCellGrouper.cellIndex[[col, row]]);
+                    var adjUngSameColorCells = adjacentStones.filter(stone => stone.color === newGroup.color);
+                    adjUngSameColorCells.forEach(stone => {
+                            groupInsertionQueue.push(stone);
+                            delete ungroupedCellIndex[[stone.col, stone.row]];
+                        });
+                }
+                return [newGroup, values(ungroupedCellIndex)];
+
+                function cellIsUngrouped(col, row, ungroupedCellIndex) {
+                    return ungroupedCellIndex.hasOwnProperty([col, row]);
+                }
+            }
+        }
+
+        function index(cellArray) {
+            var cellIndex = {};
+            cellArray.forEach(cell => {
+                cellIndex[[cell.col, cell.row]] = cell;
+            })
+            return cellIndex;
+        }
+
+        function values(cellIndex) {
+            return Object.keys(cellIndex).map(key => cellIndex[key]);
+        }
+    }
+}
+
 class CellGroup {
-    constructor(col, row, color, state) {
+    constructor(color, cellIndex, cells, hasLiberties) {
         this.color = color;
-        this.cells = [{
-            col: col,
-            row: row,
-        }];
-        this.state = state;
+        this.cellIndex = cellIndex || {};
+        this.cells = cells || [];
+        this.hasLiberties = hasLiberties || false;
     }
 
-    isDead() {
-        return this.cells.every(cell => {
-            return !GoRules.hasAdjacentLiberty(cell.col, cell.row, this.state);
-        })
+    push(cell) {
+        let newCells = this.cells.slice()
+        newCells.push(cell);
+        let newHasLiberties = this.hasLiberties || GoRules.hasAdjacentLiberty(cell.col, cell.row, this.cellIndex)
+        return new CellGroup(this.color, this.cellIndex, newCells, newHasLiberties);
     }
 }

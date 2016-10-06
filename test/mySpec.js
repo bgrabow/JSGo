@@ -310,7 +310,7 @@ describe('Rules of Go', ()=>{
     })
 
     describe('capturing a group of stones', ()=>{
-        xit('a stone is not captured when its group has remaining liberties', ()=>{
+        it('a stone is not captured when its group has remaining liberties', ()=>{
             let state = new State(parse([
                 "...................",
                 "..b................",
@@ -359,7 +359,7 @@ describe('Rules of Go', ()=>{
             }))
         })
 
-        xit('a group is captured when it has no liberties', ()=>{
+        it('a group is captured when it has no liberties', ()=>{
             let state = new State(parse([
                 "...................",
                 "..bb...............",
