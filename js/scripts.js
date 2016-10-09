@@ -24,7 +24,7 @@ class GoGame {
     }
 
     currentPlayerSelects(col, row) {
-        this.state = GoRules.evaluate({col: col, row: row}, this.state);
+        this.state = GoRules.evaluate({col: parseInt(col), row: parseInt(row)}, this.state);
         this.notify();
     }
 
@@ -173,28 +173,32 @@ class GoRules {
         let currentPlayer = state.currentPlayer;
         let otherPlayer = state.nextPlayer().currentPlayer;
 
-        let newState = state.addStone(action.col, action.row, currentPlayer);
-        let otherPlayersStonesRemoved = GoRules.removeOnePlayersDeadStones(newState, otherPlayer);
+        let stateWithPlacedStone = state.addStone(action.col, action.row, currentPlayer);
+        let cellGroups = new CellGrouper(state).cellGroups;
+        let stateWithoutCapturedStones = removeOnePlayersDeadStones(cellGroups, stateWithPlacedStone, otherPlayer);
+        let cellGrouperAfterCapture = new CellGrouper(stateWithoutCapturedStones);
 
-        return otherPlayersStonesRemoved.nextPlayer();
+        return placedStoneIsAlive(action.col, action.row, cellGrouperAfterCapture) ?
+                stateWithoutCapturedStones.nextPlayer() :
+                state;
+
+        function placedStoneIsAlive(col, row, cellGrouper) {
+            return cellGrouper.groupContaining(col, row).hasLiberties;
+        }
+
+        function removeOnePlayersDeadStones(cellGroups, state, player) {
+            var cellGroups = new CellGrouper(state).cellGroups;
+
+            return cellGroups.filter(g => { return g.color === player })
+                            .filter(g => { return !g.hasLiberties })
+                            .reduce((removingGroups, g) => {
+                                return g.cells.reduce((removingStones, cell) => {
+                                    return removingStones.removeStone(cell.col, cell.row);
+                                }, removingGroups);
+                            }, state);
+        }
     }
 
-    static removeOnePlayersDeadStones(state, player) {
-        var occupiedCells = [];
-        state.cells.eachCell((col, row, color) => {
-            occupiedCells.push({col: col, row: row, color: color});
-        })
-
-        var cellGroups = new CellGrouper(occupiedCells).cellGroups;
-
-        return cellGroups.filter(g => { return g.color === player })
-                         .filter(g => { return !g.hasLiberties })
-                         .reduce((removingGroups, g) => {
-                            return g.cells.reduce((removingStones, cell) => {
-                                 return removingStones.removeStone(cell.col, cell.row);
-                             }, removingGroups);
-                         }, state);
-    }
 
     static hasAdjacentLiberty(col, row, cellIndex) {
         return GoRules.adjacentPositions(col, row).some(([adjCol, adjRow]) => {
@@ -215,13 +219,26 @@ class GoRules {
 }
 
 class CellGrouper {
-    constructor(cells) {
+    constructor(state) {
         var theCellGrouper = this;
 
-        this.cells = cells;
-        this.cellIndex = index(cells);
+        this.cells = extractCells(state);
+        this.cellIndex = index(this.cells);
         this.cellGroups = group();
+        this.groupContaining = (col, row)=>{
+            return theCellGrouper.cellGroups.find(group => {
+                return group.cells.some(cell => cell.col === col && cell.row === row)
+            }) || new CellGroup(Stone.empty);
+        }
     
+        function extractCells(state) {
+            var occupiedCells = [];
+            state.cells.eachCell((col, row, color) => {
+                occupiedCells.push({col: col, row: row, color: color});
+            })
+            return occupiedCells;
+        }
+
         function group() {
             var ungroupedCells = theCellGrouper.cells.slice();
             var cellGroups = [];
