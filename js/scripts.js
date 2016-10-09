@@ -176,10 +176,11 @@ class GoRules {
         let stateWithPlacedStone = state.addStone(action.col, action.row, currentPlayer);
         let cellGroups = new CellGrouper(state).cellGroups;
         let stateWithoutCapturedStones = removeOnePlayersDeadStones(cellGroups, stateWithPlacedStone, otherPlayer);
-        let cellGrouperAfterCapture = new CellGrouper(stateWithoutCapturedStones);
+        let newState = stateWithoutCapturedStones.nextPlayer();
+        let cellGrouperAfterCapture = new CellGrouper(newState);
 
         return placedStoneIsAlive(action.col, action.row, cellGrouperAfterCapture) ?
-                stateWithoutCapturedStones.nextPlayer() :
+                newState :
                 state;
 
         function placedStoneIsAlive(col, row, cellGrouper) {
