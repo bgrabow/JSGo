@@ -111,6 +111,20 @@ class State {
     }
 }
 
+class StateHistory {
+    constructor(initialState) {
+        
+    }
+
+    add(newState) {
+
+    }
+
+    hasDuplicateState(pendingState, history) {
+
+    }
+}
+
 class StoneMap {
     constructor(stoneMap) {
         this.map = stoneMap || {};
@@ -216,6 +230,14 @@ class GoRules {
         function inBounds(col, row) {
             return col >= 0 && row >= 0 && col <= 19 && row <= 19;
         }
+    }
+}
+
+class RuleOfKo {
+    static evaluate(pendingState, history) {
+        return history.hasDuplicateState(pendingState) ? 
+                history.currentState() :
+                pendingState;
     }
 }
 

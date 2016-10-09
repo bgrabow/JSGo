@@ -513,9 +513,9 @@ describe('Rules of Go', ()=>{
         })
     })
 
-    xdescribe('the rule of Ko', ()=>{
+    describe('the rule of Ko', ()=>{
         it('does not allow replicating a previous game state', ()=>{
-            let state = new State(parse([
+            let firstState = new State(parse([
                 "..w................",
                 ".wbw...............",
                 ".b.b...............",
@@ -536,58 +536,55 @@ describe('Rules of Go', ()=>{
                 "...................",
                 "...................",
             ]), Player.white);
-            let whiteCaptures = GoRules.evaluate({col: 2, row: 2}, state);
+            let history = new StateHistory(firstState);
+            let secondState = new State(parse([
+                "..w................",
+                ".w.w...............",
+                ".bwb...............",
+                "..b................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+            ]), Player.black);
+            expect(RuleOfKo.evaluate(secondState, history)).toBe(secondState);
 
-            expect(whiteCaptures).toEqual(jasmine.objectContaining({
-                currentPlayer: Player.black,
-                cells: parse([
-                    "..w................",
-                    ".w.w...............",
-                    ".bwb...............",
-                    "..b................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                ])
-            }))
+            history.add(secondState);
 
-            let blackAttemptsRecapture = GoRules.evaluate({col: 2, row: 1}, whiteCaptures);
-            expect(blackAttemptsRecapture).toEqual(jasmine.objectContaining({
-                currentPlayer: Player.black,
-                cells: parse([
-                    "..w................",
-                    ".w.w...............",
-                    ".bwb...............",
-                    "..b................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                    "...................",
-                ])
-            }))
+            let thirdState = new State(parse([
+                "..w................",
+                ".wbw...............",
+                ".b.b...............",
+                "..b................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+            ]), Player.white);
+
+            expect(RuleOfKo.evaluate(thirdState, history)).toBe(secondState);
         })
     })
 })
@@ -651,6 +648,38 @@ function prettyPrint(cells) {
         }).join('');
     })
 }
+
+describe('state history', ()=>{
+    describe("compares an input state's board with boards in the state history", ()=>{
+        var firstState, secondState, thirdState;
+
+        beforeEach(()=>{
+            firstState = {uniqueData: 'a'}
+            secondState = {uniqueData: 'b'}
+            thirdState = {uniqueData: 'c'}
+        })
+
+        it('detects duplicate board states by hashcode', ()=>{
+            firstState.cells = {hashCode: 1};
+            secondState.cells = {hashCode: 2};
+            thirdState.cells = {hashCode: 1};
+            
+            let history = new StateHistory(firstState);
+            history.add(secondState);
+            expect(RuleOfKo.evaluate(thirdState, history)).toBe(firstState);
+        })
+
+        it('allows unique new board states', ()=>{
+            firstState.cells = {hashCode: 1};
+            secondState.cells = {hashCode: 2};
+            thirdState.cells = {hashCode: 3};
+            
+            let history = new StateHistory(firstState);
+            history.add(secondState);
+            expect(RuleOfKo.evaluate(thirdState, history)).toBe(thirdState);
+        })
+    })
+})
 
 describe("StoneMap", ()=>{
     it("stores stones", ()=>{
