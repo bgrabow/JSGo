@@ -13,10 +13,13 @@ DONE            *   Group of white stones adjacent to each other
 DONE            *   Group of black stones adjacent to each other
 DONE        *   Check for captures on groups instead of individual stones
     *   Detect illegal moves
-        *   Placing a stone that will have no liberties
-        *   Allow placing stone with no liberties if it will cause a capture that results in the stone having liberties
+DONE    *   Placing a stone that will have no liberties
+DONE    *   Allow placing stone with no liberties if it will cause a capture that results in the stone having liberties
         *   Disallow recreation of previous state by rule of Ko
+            *   Save state history
+            *   Create unique hashcode for each board state
     *   Scoring
 *   Add undo/redo/tree traversal of game history
+    *   Save state history as array
     *   Save state history as linked list
 *   Change GoRules to GoRuleChecker and make it an instanced class
