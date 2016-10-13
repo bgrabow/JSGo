@@ -214,7 +214,7 @@ class GoRules {
         [col,row+1]].filter(([col,row]) => { return inBounds(col, row) })
 
         function inBounds(col, row) {
-            return col >= 0 && row >= 0 && col <= 19 && row <= 19;
+            return col >= 0 && row >= 0 && col < 19 && row < 19;
         }
     }
 }
