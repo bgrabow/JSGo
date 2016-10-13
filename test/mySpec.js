@@ -557,8 +557,8 @@ describe('Rules of Go', ()=>{
                 "...................",
                 "...................",
             ]), Player.black);
-            expect(game.state.cells).toEqual(finalState.cells);
             expect(game.state.currentPlayer).toEqual(finalState.currentPlayer);
+            expect(game.state.cells).toEqual(finalState.cells);
         })
 
         it('does not allow replicating a previous game state', ()=>{
