@@ -1,10 +1,10 @@
-*   Separate State class into StableState and PendingState
+*   Separate State class into StableState and PendingState (might abandon this idea)
     *   StableState is constrained to be a valid game state awaiting the next player's input
     *   PendingState may be an invalid game state, awaiting interaction from the game engine or rule evaluation
     *   StableState may be converted to JSON, PendingState may not since it should never be shown to an observer
 *   Implement Go rules
 DONE*   End game after both players pass
-    *   Capture stones with no liberties
+DONE*   Capture stones with no liberties
         *   Revise naming to better reflect difference between cells/stones
 DONE    *   Capture a single stone
 DONE    *   Capture a group of stones
@@ -12,14 +12,17 @@ DONE        *   Transform board into groups:
 DONE            *   Group of white stones adjacent to each other
 DONE            *   Group of black stones adjacent to each other
 DONE        *   Check for captures on groups instead of individual stones
-    *   Detect illegal moves
+DONE*   Detect illegal moves
 DONE    *   Placing a stone that will have no liberties
 DONE    *   Allow placing stone with no liberties if it will cause a capture that results in the stone having liberties
-        *   Disallow recreation of previous state by rule of Ko
-            *   Save state history
-            *   Create unique hashcode for each board state
+DONE    *   Disallow recreation of previous state by rule of Ko
+DONE        *   Save state history
+DONE        *   Create unique hashcode for each board state
     *   Scoring
 *   Add undo/redo/tree traversal of game history
-    *   Save state history as array
+DONE*   Save state history as array
     *   Save state history as linked list
-*   Change GoRules to GoRuleChecker and make it an instanced class
+DONE*   ~~Change GoRules to GoRuleChecker and make it an instanced class~~
+DONE    *   Instead we have GoRules which is an instanced class
+DONE    *   GoRules holds an array of references to static rule objects
+DONE    *   GoRules evaluates its rules. If it finds an illegal move, it aborts early. Otherwise it returns the final state result
