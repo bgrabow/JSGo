@@ -24,7 +24,7 @@ class GoGame {
     }
 
     currentPlayerSelects(col, row) {
-        this.state = GoRules.evaluate({col: parseInt(col), row: parseInt(row)}, this.state);
+        this.state = CapturingRules.evaluate({col: parseInt(col), row: parseInt(row)}, this.state);
         this.notify();
     }
 
@@ -199,7 +199,7 @@ class StoneMap {
     }
 }
 
-class GoRules {
+class CapturingRules {
     static evaluate(action, state) {
         if(state.stoneAt(action.col, action.row) !== Stone.empty) return state;
 
@@ -241,7 +241,7 @@ class GoRules {
 
 
     static hasAdjacentLiberty(col, row, cellIndex) {
-        return GoRules.adjacentPositions(col, row).some(([adjCol, adjRow]) => {
+        return CapturingRules.adjacentPositions(col, row).some(([adjCol, adjRow]) => {
             return !cellIndex[[adjCol, adjRow]];
         });
     }
@@ -307,7 +307,7 @@ class CellGrouper {
                     var currentCell = groupInsertionQueue.shift();
                     newGroup = newGroup.push(currentCell);
                     
-                    var adjacentPositions = GoRules.adjacentPositions(currentCell.col, currentCell.row);
+                    var adjacentPositions = CapturingRules.adjacentPositions(currentCell.col, currentCell.row);
                     var adjUngroupedCells = adjacentPositions.filter(([col, row]) => cellIsUngrouped(col, row, ungroupedCellIndex));
                     var adjacentStones = adjUngroupedCells.map(([col, row]) => theCellGrouper.cellIndex[[col, row]]);
                     var adjUngSameColorCells = adjacentStones.filter(stone => stone.color === newGroup.color);
@@ -349,7 +349,7 @@ class CellGroup {
     push(cell) {
         let newCells = this.cells.slice()
         newCells.push(cell);
-        let newHasLiberties = this.hasLiberties || GoRules.hasAdjacentLiberty(cell.col, cell.row, this.cellIndex)
+        let newHasLiberties = this.hasLiberties || CapturingRules.hasAdjacentLiberty(cell.col, cell.row, this.cellIndex)
         return new CellGroup(this.color, this.cellIndex, newCells, newHasLiberties);
     }
 }
