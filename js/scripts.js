@@ -132,6 +132,27 @@ class StateHistory {
 class StoneMap {
     constructor(stoneMap) {
         this.map = stoneMap || {};
+        this.hashCode = hash(this.map, this.key);
+        
+        function hash(map) {
+            // Number of possible board positions is approximately
+            // 3^(19*19) since each cell can be empty, black, or
+            // white. Some positions are illegal (with dead stones
+            // on the board, for example) but the logic to evaluate
+            // those positions is too intricate for use in a 
+            // hashing function.
+            //
+            // Since 3^(19*19) ~ 10^170 exceeds the max safe
+            // integer in JavaScript of 2^53-1, we'll use a string
+            // representation instead.
+
+            return prettyPrint({
+                map: map,
+                get: (col, row)=>{
+                    return map[[col, row].toString()];
+                }
+            }).join('');
+        }
     }
 
     clone(map) {
@@ -165,7 +186,7 @@ class StoneMap {
     toJSON() {
         return JSON.stringify(this.map);
     }
-
+    
     key(col, row) {
         return [col, row].toString();
     }
@@ -331,4 +352,29 @@ class CellGroup {
         let newHasLiberties = this.hasLiberties || GoRules.hasAdjacentLiberty(cell.col, cell.row, this.cellIndex)
         return new CellGroup(this.color, this.cellIndex, newCells, newHasLiberties);
     }
+}
+
+function parse(visualBoard) {
+    let cells = new StoneMap();
+    visualBoard.forEach((rowString, row) => {
+        rowString.split('').forEach((char, col) => {
+            if(['b','w'].includes(char)) {
+                cells = cells.set(col, row, char === 'b' ? Stone.black : Stone.white);
+            }
+        })
+    })
+    return cells;
+}
+
+function prettyPrint(cells) {
+    return [...Array(19).keys()].map(row => {
+        return [...Array(19).keys()].map(col => {
+            let value = cells.get(col, row);
+            return {
+                [Stone.black]: 'b',
+                [Stone.white]: 'w',
+                undefined: '.',
+            }[value]
+        }).join('');
+    })
 }

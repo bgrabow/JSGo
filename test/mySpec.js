@@ -624,31 +624,6 @@ describe('string literal representation of board', ()=>{
     })
 })
 
-function parse(visualBoard) {
-    let cells = new StoneMap();
-    visualBoard.forEach((rowString, row) => {
-        rowString.split('').forEach((char, col) => {
-            if(['b','w'].includes(char)) {
-                cells = cells.set(col, row, char === 'b' ? Stone.black : Stone.white);
-            }
-        })
-    })
-    return cells;
-}
-
-function prettyPrint(cells) {
-    return [...Array(19).keys()].map(row => {
-        return [...Array(19).keys()].map(col => {
-            let value = cells.get(col, row);
-            return {
-                [Stone.black]: 'b',
-                [Stone.white]: 'w',
-                undefined: '.',
-            }[value]
-        }).join('');
-    })
-}
-
 describe('state history', ()=>{
     describe("compares an input state's board with boards in the state history", ()=>{
         var firstState, secondState, thirdState;
@@ -717,5 +692,10 @@ describe("StoneMap", ()=>{
                     .toJSON()).toEqual(
             '{"0,0":"black","1,2":"white"}'
         )
+    })
+
+    it('has a hashCode for identifying duplicate board states', ()=>{
+        let stoneMap = new StoneMap();
+        expect(stoneMap.hashCode).toBe(prettyPrint(stoneMap).join(''));
     })
 })
