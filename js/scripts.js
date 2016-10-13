@@ -124,7 +124,7 @@ class StateHistory {
 
     hasDuplicateState(pendingState, history) {
         return this.states.some(state => {
-            return state.cells.hashCode === pendingState.hashCode;
+            return state.cells.hashCode === pendingState.cells.hashCode;
         })
     }
 }
@@ -261,7 +261,7 @@ class GoRules {
 class RuleOfKo {
     static evaluate(pendingState, history) {
         return history.hasDuplicateState(pendingState) ? 
-                history.currentState() :
+                history.currentState :
                 pendingState;
     }
 }
