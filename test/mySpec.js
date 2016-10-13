@@ -140,7 +140,9 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.black);
             
-            expect(CapturingRules.evaluate({col: 2, row: 3}, state)).toEqual(jasmine.objectContaining({
+            var result = CapturingRules.evaluate({col: 2, row: 3}, state) 
+
+            expect(result.newState).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.white,
                 cells: parse([
                     "...................",
@@ -189,7 +191,8 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.black);
             
-            expect(CapturingRules.evaluate({col: 2, row: 3}, state)).toEqual(jasmine.objectContaining({
+            var result = CapturingRules.evaluate({col: 2, row: 3}, state)
+            expect(result.newState).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.white,
                 cells: parse([
                     "...................",
@@ -238,7 +241,8 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.white);
             
-            expect(CapturingRules.evaluate({col: 7, row: 3}, state)).toEqual(jasmine.objectContaining({
+            var result = CapturingRules.evaluate({col: 7, row: 3}, state)
+            expect(result.newState).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.black,
                 cells: parse([
                     "...................",
@@ -287,7 +291,8 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.black);
             
-            expect(CapturingRules.evaluate({col: 1, row: 0}, state)).toEqual(jasmine.objectContaining({
+            var result = CapturingRules.evaluate({col: 1, row: 0}, state)
+            expect(result.newState).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.white,
                 cells: parse([
                     ".b.................",
@@ -338,7 +343,8 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.black);
             
-            expect(CapturingRules.evaluate({col: 2, row: 3}, state)).toEqual(jasmine.objectContaining({
+            var result = CapturingRules.evaluate({col: 2, row: 3}, state)
+            expect(result.newState).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.white,
                 cells: parse([
                     "...................",
@@ -387,7 +393,8 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.black);
             
-            expect(CapturingRules.evaluate({col: 2, row: 3}, state)).toEqual(jasmine.objectContaining({
+            var result = CapturingRules.evaluate({col: 2, row: 3}, state)
+            expect(result.newState).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.white,
                 cells: parse([
                     "...................",
@@ -438,7 +445,9 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.white);
 
-            expect(CapturingRules.evaluate({col: 2, row: 2}, state)).toEqual(jasmine.objectContaining({
+            var result = CapturingRules.evaluate({col: 2, row: 2}, state)
+            expect(result.legalMove).toBe(true);
+            expect(result.newState).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.black,
                 cells: parse([
                     "..w................",
@@ -463,7 +472,7 @@ describe('Rules of Go', ()=>{
                 ])
             }))
         })
-        it('is allowed if doing so will capture some adjacent stones', ()=>{
+        it('is not allowed if the placed stone will still have no liberties after capturing enemy stones', ()=>{
             let state = new State(parse([
                 "..w................",
                 ".wb................",
@@ -486,7 +495,9 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.white);
 
-            expect(CapturingRules.evaluate({col: 2, row: 2}, state)).toEqual(jasmine.objectContaining({
+            var result = CapturingRules.evaluate({col: 2, row: 2}, state)
+            expect(result.legalMove).toBe(false);
+            expect(result.newState).toEqual(jasmine.objectContaining({
                 currentPlayer: Player.white,
                 cells: parse([
                     "..w................",

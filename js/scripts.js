@@ -24,8 +24,11 @@ class GoGame {
     }
 
     currentPlayerSelects(col, row) {
-        this.state = CapturingRules.evaluate({col: parseInt(col), row: parseInt(row)}, this.state);
-        this.notify();
+        var result = CapturingRules.evaluate({col: parseInt(col), row: parseInt(row)}, this.state);
+        if(result.legalMove) {
+            this.state = result.newState;
+            this.notify();
+        }
     }
 
     currentPlayerPasses() {
@@ -218,9 +221,11 @@ class CapturingRules {
         let newState = stateWithoutCapturedStones.nextPlayer();
         let cellGrouperAfterCapture = new CellGrouper(newState);
 
-        return placedStoneIsAlive(action.col, action.row, cellGrouperAfterCapture) ?
-                newState :
-                state;
+        var result = new RuleResult();
+        result.legalMove = placedStoneIsAlive(action.col, action.row, cellGrouperAfterCapture);
+        result.newState = result.legalMove ? newState : state;
+
+        return result;
 
         function placedStoneIsAlive(col, row, cellGrouper) {
             return cellGrouper.groupContaining(col, row).hasLiberties;
@@ -263,6 +268,13 @@ class RuleOfKo {
         return history.hasDuplicateState(pendingState) ? 
                 history.currentState :
                 pendingState;
+    }
+}
+
+class RuleResult {
+    constructor() {
+        this.legalMove = false;
+        this.newState = new State();
     }
 }
 
