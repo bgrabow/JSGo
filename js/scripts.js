@@ -113,15 +113,19 @@ class State {
 
 class StateHistory {
     constructor(initialState) {
-        
+        this.states = [initialState];
+        this.currentState = initialState;
     }
 
     add(newState) {
-
+        this.states.push(newState);
+        this.currentState = newState;
     }
 
     hasDuplicateState(pendingState, history) {
-
+        return this.states.some(state => {
+            return state.cells.hashCode === pendingState.hashCode;
+        })
     }
 }
 

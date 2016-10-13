@@ -652,11 +652,24 @@ function prettyPrint(cells) {
 describe('state history', ()=>{
     describe("compares an input state's board with boards in the state history", ()=>{
         var firstState, secondState, thirdState;
+        var history;
 
         beforeEach(()=>{
             firstState = {uniqueData: 'a'}
             secondState = {uniqueData: 'b'}
             thirdState = {uniqueData: 'c'}
+        })
+
+        it('can store a single state', ()=>{
+            history = new StateHistory(firstState);
+            expect(history.currentState).toBe(firstState);
+        })
+
+        it('can store a linear history of states', ()=>{
+            history = new StateHistory(firstState);
+            history.add(secondState);
+            history.add(thirdState);
+            expect(history.currentState).toBe(thirdState);
         })
 
         it('detects duplicate board states by hashcode', ()=>{
@@ -666,17 +679,17 @@ describe('state history', ()=>{
             
             let history = new StateHistory(firstState);
             history.add(secondState);
-            expect(RuleOfKo.evaluate(thirdState, history)).toBe(firstState);
+            expect(history.hasDuplicateState(thirdState)).toBe(true);
         })
 
-        it('allows unique new board states', ()=>{
+        it('does not use anything other than hasCode to determine uniqueness', ()=>{
             firstState.cells = {hashCode: 1};
             secondState.cells = {hashCode: 2};
             thirdState.cells = {hashCode: 3};
             
             let history = new StateHistory(firstState);
             history.add(secondState);
-            expect(RuleOfKo.evaluate(thirdState, history)).toBe(thirdState);
+            expect(history.hasDuplicateState(thirdState)).toBe(false);
         })
     })
 })
