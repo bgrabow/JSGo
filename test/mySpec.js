@@ -557,7 +557,8 @@ describe('Rules of Go', ()=>{
                 "...................",
                 "...................",
             ]), Player.black);
-            expect(game.state).toEqual(finalState);
+            expect(game.state.cells).toEqual(finalState.cells);
+            expect(game.state.currentPlayer).toEqual(finalState.currentPlayer);
         })
 
         it('does not allow replicating a previous game state', ()=>{
@@ -604,7 +605,9 @@ describe('Rules of Go', ()=>{
                 "...................",
                 "...................",
             ]), Player.black);
-            expect(RuleOfKo.evaluate(secondState, history)).toBe(secondState);
+            var intermediateResult = RuleOfKo.evaluate({}, secondState, history)
+            expect(intermediateResult.legalMove).toBe(true);
+            expect(intermediateResult.newState).toBe(secondState);
 
             history.add(secondState);
 
@@ -630,7 +633,9 @@ describe('Rules of Go', ()=>{
                 "...................",
             ]), Player.white);
 
-            expect(RuleOfKo.evaluate(thirdState, history)).toBe(secondState);
+            var finalResult = RuleOfKo.evaluate({}, thirdState, history)
+            expect(finalResult.legalMove).toBe(false);
+            expect(finalResult.newState).toBe(secondState);
         })
     })
 })

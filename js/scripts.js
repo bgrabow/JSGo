@@ -16,6 +16,11 @@ class GoGame {
     constructor(stateJSON) {
         this.observers = [];
         this.state = stateJSON ? State.parse(stateJSON) : new State();
+        this.history = new StateHistory(this.state);
+        this.rules = new GoRules([
+            CapturingRules,
+            RuleOfKo,
+        ])
     }
 
     subscribe(observer) {
@@ -24,9 +29,10 @@ class GoGame {
     }
 
     currentPlayerSelects(col, row) {
-        var result = CapturingRules.evaluate({col: parseInt(col), row: parseInt(row)}, this.state);
+        var result = this.rules.evaluate({col: parseInt(col), row: parseInt(row)}, this.state, this.history);
         if(result.legalMove) {
             this.state = result.newState;
+            this.updateHistory();
             this.notify();
         }
     }
@@ -38,8 +44,12 @@ class GoGame {
         } else {
             this.state = this.state.nextPlayer();
         }
-        
+        this.updateHistory();
         this.notify();
+    }
+
+    updateHistory() {
+        if(this.history.currentState !== this.state) this.history.add(this.state);
     }
 
     notify(observer) {
@@ -202,8 +212,27 @@ class StoneMap {
     }
 }
 
+class GoRules {
+    constructor(rules) {
+        this.rules = rules;
+    }
+
+    evaluate(action, originalState, history) {
+        return this.rules.reduce((previousRuleResult, rule)=>{
+            if(!previousRuleResult.legalMove) return previousRuleResult;
+
+            var newResult = rule.evaluate(action, previousRuleResult.newState, history);
+
+            if(!newResult.legalMove) return RuleResult.failedRuleResult(originalState);
+
+            return newResult;
+
+        }, RuleResult.successfulRuleResult(originalState));
+    }
+}
+
 class CapturingRules {
-    static evaluate(action, state) {
+    static evaluate(action, state, history) {
         if(state.stoneAt(action.col, action.row) !== Stone.empty) return state;
 
         // First remove stones from other player if they have no liberties
@@ -221,11 +250,9 @@ class CapturingRules {
         let newState = stateWithoutCapturedStones.nextPlayer();
         let cellGrouperAfterCapture = new CellGrouper(newState);
 
-        var result = new RuleResult();
-        result.legalMove = placedStoneIsAlive(action.col, action.row, cellGrouperAfterCapture);
-        result.newState = result.legalMove ? newState : state;
-
-        return result;
+        return new RuleResult(state, newState, ()=>{
+            return placedStoneIsAlive(action.col, action.row, cellGrouperAfterCapture);
+        });
 
         function placedStoneIsAlive(col, row, cellGrouper) {
             return cellGrouper.groupContaining(col, row).hasLiberties;
@@ -264,17 +291,25 @@ class CapturingRules {
 }
 
 class RuleOfKo {
-    static evaluate(pendingState, history) {
-        return history.hasDuplicateState(pendingState) ? 
-                history.currentState :
-                pendingState;
+    static evaluate(action, pendingState, history) {
+        return new RuleResult(history.currentState, pendingState, ()=>{
+            return !history.hasDuplicateState(pendingState);
+        });
     }
 }
 
 class RuleResult {
-    constructor() {
-        this.legalMove = false;
-        this.newState = new State();
+    constructor(currentState, pendingState, legalMoveCriteria) {
+        this.legalMove = legalMoveCriteria();
+        this.newState = this.legalMove ? pendingState : currentState;
+    }
+
+    static failedRuleResult(state) {
+        return new RuleResult(state, state, ()=>false);
+    }
+
+    static successfulRuleResult(state) {
+        return new RuleResult(state, state, ()=>true);
     }
 }
 
