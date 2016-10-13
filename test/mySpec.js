@@ -514,6 +514,41 @@ describe('Rules of Go', ()=>{
     })
 
     describe('the rule of Ko', ()=>{
+        it('is implemented end-to-end', ()=>{
+            let game = new GoGame();
+            game.currentPlayerSelects(1,2);
+            game.currentPlayerSelects(1,1);
+            game.currentPlayerSelects(2,3);
+            game.currentPlayerSelects(2,0);
+            game.currentPlayerSelects(3,2);
+            game.currentPlayerSelects(3,1);
+            game.currentPlayerSelects(2,1);
+            game.currentPlayerSelects(2,2);
+            game.currentPlayerSelects(2,1);
+            let finalState = new State(parse([
+                "..w................",
+                ".w.w...............",
+                ".bwb...............",
+                "..b................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+                "...................",
+            ]), Player.black);
+            expect(game.state).toEqual(finalState);
+        })
+
         it('does not allow replicating a previous game state', ()=>{
             let firstState = new State(parse([
                 "..w................",
